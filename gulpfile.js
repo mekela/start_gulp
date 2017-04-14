@@ -6,11 +6,12 @@ var browserSync = require('browser-sync');
 var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
 var gulpIf = require('gulp-if');
-var cssnano = require('gulp-cssnano');
+var cleanCSS = require('gulp-clean-css');
 var imagemin = require('gulp-imagemin');
 var cache = require('gulp-cache');
 var del = require('del');
 var runSequence = require('run-sequence');
+var zip = require('gulp-zip');
 
 // Basic Gulp task syntax
 gulp.task('hello', function() {
@@ -48,13 +49,14 @@ gulp.task('watch', function() {
 // Optimization Tasks 
 // ------------------
 
+
 // Optimizing CSS and JavaScript 
 gulp.task('useref', function() {
 
   return gulp.src('app/*.html')
     .pipe(useref())
     .pipe(gulpIf('*.js', uglify()))
-    .pipe(gulpIf('*.css', cssnano()))
+    .pipe(gulpIf('*.css', cleanCSS()))
     .pipe(gulp.dest('dist'));
 });
 
@@ -72,6 +74,12 @@ gulp.task('images', function() {
 gulp.task('fonts', function() {
   return gulp.src('app/fonts/**/*')
     .pipe(gulp.dest('dist/fonts'))
+})
+
+// Copying common js
+gulp.task('commonjs', function() {
+  return gulp.src('app/js/common.js')
+      .pipe(gulp.dest('dist/js'))
 })
 
 // Cleaning 
@@ -98,7 +106,13 @@ gulp.task('build', function(callback) {
   runSequence(
     'clean:dist',
     'sass',
-    ['useref', 'images', 'fonts'],
+    ['useref', 'images', 'fonts', 'commonjs'],
     callback
   )
 })
+
+gulp.task('archive', () =>
+gulp.src('dist/**/*')
+    .pipe(zip('archive.zip'))
+    .pipe(gulp.dest('dist'))
+)

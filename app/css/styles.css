@@ -451,6 +451,9 @@ textarea {
   position: relative;
   overflow: hidden; }
 
+.main {
+  background: red; }
+
 /*----------header----------*/
 .header {
   position: relative;
